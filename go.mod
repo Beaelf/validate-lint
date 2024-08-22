@@ -1,4 +1,4 @@
-module validate-lint
+module github.com/Beaelf/validate-lint
 
 go 1.21
 
