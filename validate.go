@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	register.Plugin("example", New)
+	register.Plugin("test", New)
 }
 
 type MySettings struct {
