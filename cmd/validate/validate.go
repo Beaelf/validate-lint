@@ -1,15 +1,14 @@
-package validate_lint
+package validate
 
 import (
-	"go/ast"
-	"strings"
-
+	"fmt"
+	pkg_validate "github.com/Beaelf/validate-lint/pkg/validate"
 	"github.com/golangci/plugin-module-register/register"
 	"golang.org/x/tools/go/analysis"
 )
 
 func init() {
-	register.Plugin("test", New)
+	register.Plugin("validate-lint", New)
 }
 
 type MySettings struct {
@@ -35,43 +34,17 @@ func New(settings any) (register.LinterPlugin, error) {
 		return nil, err
 	}
 
+	fmt.Printf("==> setting: %v\n", s)
+
 	return &PluginExample{settings: s}, nil
 }
 
 func (f *PluginExample) BuildAnalyzers() ([]*analysis.Analyzer, error) {
-	a := &analysis.Analyzer{
-
-		Name: "todo",
-		Doc:  "finds todos without author",
-		Run:  f.run,
-	}
 	return []*analysis.Analyzer{
-		a,
+		pkg_validate.Validate,
 	}, nil
 }
 
 func (f *PluginExample) GetLoadMode() string {
 	return register.LoadModeSyntax
-}
-
-func (f *PluginExample) run(pass *analysis.Pass) (interface{}, error) {
-	for _, file := range pass.Files {
-		ast.Inspect(file, func(n ast.Node) bool {
-			if comment, ok := n.(*ast.Comment); ok {
-				if strings.HasPrefix(comment.Text, "// TODO:") || strings.HasPrefix(comment.Text, "// TODO():") {
-					pass.Report(analysis.Diagnostic{
-						Pos:            comment.Pos(),
-						End:            0,
-						Category:       "todo",
-						Message:        "TODO comment has no author",
-						SuggestedFixes: nil,
-					})
-				}
-			}
-
-			return true
-		})
-	}
-
-	return nil, nil
 }
